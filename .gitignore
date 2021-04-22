@@ -7,4 +7,3 @@
 # binary file
 cmd/main
 pkg/img/*
-pkg/testdata/fixture/*

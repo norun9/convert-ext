@@ -13,8 +13,8 @@ var removeSrc bool
 func init() {
 	flag.StringVar(&inputDir, "i", "", "input dir")
 	flag.StringVar(&outputDir, "o", "", "output dir")
-	flag.StringVar(&beforeExt, "be", "jpg", "before ext")
-	flag.StringVar(&afterExt, "ae", "png", "after ext")
+	flag.StringVar(&beforeExt, "be", ".jpg", "before ext")
+	flag.StringVar(&afterExt, "ae", ".png", "after ext")
 	flag.BoolVar(&removeSrc, "rm", false, "remove src")
 	flag.Parse()
 }

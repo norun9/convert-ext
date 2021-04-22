@@ -14,6 +14,7 @@ var ErrCodeNames = map[UserErr]string{
 	ErrWalkingSrcPath:  "指定されたディレクトリのトラバースに失敗しました",
 	ErrCreateDirectory: "指定されたディクトリの作成に失敗しました",
 	ErrGetSrcFileInfo:  "指定されたファイル情報の取得に失敗しました",
+	ErrGetDirInfo:      "指定されたディレクトリ情報の取得に失敗しました",
 	ErrOpenSrcFile:     "指定されたファイルの展開に失敗しました",
 	ErrCloseSrcFile:    "指定されたファイルを閉じるのに失敗しました",
 	ErrRemoveSrcFile:   "指定されたファイルの削除に失敗しました",
@@ -28,6 +29,7 @@ var (
 	ErrWalkingSrcPath  UserErr = "ErrWalkingSrcPath"
 	ErrCreateDirectory UserErr = "ErrCreateDirectory"
 	ErrGetSrcFileInfo  UserErr = "ErrGetSrcFileInfo"
+	ErrGetDirInfo      UserErr = "ErrGetDirInfo"
 	ErrOpenSrcFile     UserErr = "ErrOpenFile"
 	ErrCloseSrcFile    UserErr = "ErrCloseSrcFile"
 	ErrRemoveSrcFile   UserErr = "ErrRemoveSrcFile"
