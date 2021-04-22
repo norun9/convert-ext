@@ -47,10 +47,11 @@ func TestConvert(t *testing.T) {
 		if errors.Cause(err) != v.wantErr {
 			t.Errorf("test %s, convert() = %v, want %v", k, errors.Cause(err), v.wantErr)
 		}
+		// 出力先が指定されている際は生成されたディレクトリごと削除
 		if v.outputDir != "" {
 			testutil.RemoveAllTestSrc(filepath.Join(rootDir, v.outputDir))
 		} else {
-			// 生成したテストファイルを削除
+			// 生成されたテストファイルを削除
 			for _, expect := range v.expected {
 				testutil.RemoveTestFile(expect)
 			}
