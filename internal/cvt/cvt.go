@@ -123,7 +123,7 @@ func (c *ImageCvtGlue) pathWalk() (srcPaths []string, err error) {
 // getDstPath:
 func (c *ImageCvtGlue) getDstPath(path string) (dstPath string, err error) {
 	fileNameWithoutExt := filepath.Base(path[:len(path)-len(filepath.Ext(path))])
-	if c.BeforeExt == "" {
+	if c.OutputDir == "" {
 		fileDir := filepath.Dir(path)
 		return fmt.Sprintf("%s%s", filepath.Join(fileDir, fileNameWithoutExt), c.AfterExt), nil
 	}
@@ -196,8 +196,8 @@ func isFileExist(filepath string) (isFile bool, err error) {
 		}
 		return false, errors.Wrap(errof.ErrGetSrcFileInfo, err.Error())
 	}
-	if !fileInfo.IsDir() {
-		return true, nil
+	if fileInfo.IsDir() {
+		return false, nil
 	}
-	return false, nil
+	return true, nil
 }
