@@ -81,7 +81,7 @@ func (c *ImageCvtGlue) convert(srcPaths []string) (err error) {
 		if err = encodeImage(dstPath, dst, img); err != nil {
 			return err
 		}
-		// ファイルの削除
+		// 変換前のファイルを削除
 		if c.RemoveSrc {
 			if err = removeSrc(srcPath); err != nil {
 				return err
@@ -105,12 +105,12 @@ func (c *ImageCvtGlue) pathWalk() (srcPaths []string, err error) {
 			return errors.Wrap(errof.ErrWalkingSrcPath, err.Error())
 		}
 		// ファイルが存在しているパスかどうかを確認
-		var fileExists bool
-		if fileExists, err = isFileExist(srcPath); err != nil {
+		var isFile bool
+		if isFile, err = isFileExist(srcPath); err != nil {
 			return err
 		}
 		// ファイルかつ指定した拡張子であれば配列に格納
-		if fileExists && filepath.Ext(srcPath) == c.BeforeExt {
+		if isFile && filepath.Ext(srcPath) == c.BeforeExt {
 			srcPaths = append(srcPaths, srcPath)
 		}
 		return nil
@@ -128,16 +128,10 @@ func (c *ImageCvtGlue) getDstPath(path string) (dstPath string, err error) {
 		return fmt.Sprintf("%s%s", filepath.Join(fileDir, fileNameWithoutExt), c.AfterExt), nil
 	}
 	// 画像の出力先が指定されている場合は指定されたディレクトリを作成
-	fileDir := filepath.Join(getRootDir(), c.OutputDir)
-	// 指定したディレクトリが既に存在していれば新規でディレクトリを作成しない
-	var isDir bool
-	if isDir, err = isDirExist(fileDir); err != nil {
+	rootDir := getRootDir()
+	fileDir := filepath.Join(rootDir, c.OutputDir)
+	if err = createDir(fileDir); err != nil {
 		return "", err
-	}
-	if !isDir {
-		if err = createDir(fileDir); err != nil {
-			return "", err
-		}
 	}
 	return fmt.Sprintf("%s%s", filepath.Join(fileDir, fileNameWithoutExt), c.AfterExt), nil
 }
@@ -206,19 +200,4 @@ func isFileExist(filepath string) (isFile bool, err error) {
 		return true, nil
 	}
 	return false, nil
-}
-
-// isDirExist:
-func isDirExist(dir string) (isDir bool, err error) {
-	var fileInfo os.FileInfo
-	if fileInfo, err = os.Stat(dir); err != nil {
-		if os.IsNotExist(err) {
-			return false, nil
-		}
-		return false, errors.Wrap(errof.ErrGetDirInfo, err.Error())
-	}
-	if !fileInfo.IsDir() {
-		return false, nil
-	}
-	return true, nil
 }

@@ -19,7 +19,6 @@ func TestPathWalk(t *testing.T) {
 	if currentDir, err = os.Getwd(); err != nil {
 		t.Errorf("failed get current dir: %v", err)
 	}
-
 	vectors := map[string]struct {
 		inputDir  string
 		beforeExt string
@@ -52,18 +51,19 @@ func TestPathWalk(t *testing.T) {
 		}
 		imageCvtGlue := NewImageCvtGlue(v.inputDir, "", v.beforeExt, "", false)
 		actual, err := imageCvtGlue.pathWalk()
-
-		RemoveAll(t, fmt.Sprintf("%s/walktest", currentDir))
-
 		if errors.Cause(err) != v.wantErr {
 			t.Errorf("test %s, pathWalk() = %v, want %v", k, errors.Cause(err), v.wantErr)
 		}
+
+		// 実際の値を取得後ディレクトリ削除
+		RemoveAll(t, fmt.Sprintf("%s/walktest", currentDir))
+		// 実際に取得した配列長とテストケースの配列長が異なる場合
 		if len(v.expected) != len(actual) {
-			t.Fatal("the length of the array of expected and actual values is different")
+			t.Errorf("the length of arrays are different test: %s length of expected %d length of actual %d", k, len(v.expected), len(actual))
 		}
-		for i, e := range v.expected {
-			if e != actual[i] {
-				t.Errorf("test: %s\n, expected %s, actual %s", k, e, actual[i])
+		for idx, expected := range v.expected {
+			if expected != actual[idx] {
+				t.Errorf("test: %s expected %s actual %s", k, expected, actual[idx])
 			}
 		}
 	}
