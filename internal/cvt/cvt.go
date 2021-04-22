@@ -43,16 +43,15 @@ func NewImageCvtGlue(
 
 func (c *ImageCvtGlue) Exec() (err error) {
 	var imageFiles []string
-
 	if imageFiles, err = c.pathWalk(); err != nil {
 		return err
 	}
 	log.Println("images:", imageFiles)
-	c.Convert(imageFiles)
+	c.convert(imageFiles)
 	return nil
 }
 
-func (c *ImageCvtGlue) Convert(files []string) (err error) {
+func (c *ImageCvtGlue) convert(files []string) (err error) {
 	for _, file := range files {
 		var sf *os.File
 		if sf, err = os.Open(file); err != nil {
@@ -64,7 +63,6 @@ func (c *ImageCvtGlue) Convert(files []string) (err error) {
 
 		// image.Imageへとデコード
 		log.Println(img)
-		log.Println("hi")
 		if err = sf.Close(); err != nil {
 			return err
 		}
