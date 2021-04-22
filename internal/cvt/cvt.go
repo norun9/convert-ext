@@ -8,7 +8,6 @@ import (
 	"image/gif"
 	"image/jpeg"
 	"image/png"
-	"log"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -47,7 +46,6 @@ func (c *ImageCvtGlue) Exec() (err error) {
 	if srcPaths, err = c.pathWalk(); err != nil {
 		return err
 	}
-	log.Println("SrcPath:", srcPaths)
 	if err = c.convert(srcPaths); err != nil {
 		return err
 	}
