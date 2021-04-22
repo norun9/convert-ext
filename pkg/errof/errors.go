@@ -16,9 +16,9 @@ var ErrCodeNames = map[UserErr]string{
 	ErrOpenSrcFile:    "指定されたファイルの展開に失敗しました",
 	ErrCloseSrcFile:   "指定されたファイルを閉じるのに失敗しました",
 	ErrCreateDstFile:  "指定されたファイルの作成に失敗しました",
-	ErrEncodePngImg:   "pngファイルのエンコードに失敗しました",
-	ErrEncodeJpgImg:   "jpgファイルのエンコードに失敗しました",
-	ErrEncodeGifImg:   "gifファイルのエンコードに失敗しました",
+	ErrEncodePNGImg:   "pngファイルのエンコードに失敗しました",
+	ErrEncodeJPGImg:   "jpgファイルのエンコードに失敗しました",
+	ErrEncodeGIFImg:   "gifファイルのエンコードに失敗しました",
 }
 
 var (
@@ -27,7 +27,7 @@ var (
 	ErrOpenSrcFile    UserErr = "ErrOpenFile"
 	ErrCloseSrcFile   UserErr = "ErrCloseSrcFile"
 	ErrCreateDstFile  UserErr = "ErrCreateDstFile"
-	ErrEncodePngImg   UserErr = "ErrEncodePngImg"
-	ErrEncodeJpgImg   UserErr = "ErrEncodeJpgImg"
-	ErrEncodeGifImg   UserErr = "ErrEncodeGifImg"
+	ErrEncodePNGImg   UserErr = "ErrEncodePNGImg"
+	ErrEncodeJPGImg   UserErr = "ErrEncodeJPGImg"
+	ErrEncodeGIFImg   UserErr = "ErrEncodeGIFImg"
 )

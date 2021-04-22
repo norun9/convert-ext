@@ -72,15 +72,15 @@ func (c *ImageCvtGlue) convert(srcPaths []string) (err error) {
 		switch filepath.Ext(dstPath) {
 		case ".png":
 			if err = png.Encode(dst, img); err != nil {
-				return errors.Wrap(errof.ErrEncodePngImg, err.Error())
+				return errors.Wrap(errof.ErrEncodePNGImg, err.Error())
 			}
 		case ".jpg", ".jpeg":
 			if err = jpeg.Encode(dst, img, &jpeg.Options{Quality: jpeg.DefaultQuality}); err != nil {
-				return errors.Wrap(errof.ErrEncodeJpgImg, err.Error())
+				return errors.Wrap(errof.ErrEncodeJPGImg, err.Error())
 			}
 		case ".gif":
 			if err = gif.Encode(dst, img, nil); err != nil {
-				return errors.Wrap(errof.ErrEncodeGifImg, err.Error())
+				return errors.Wrap(errof.ErrEncodeGIFImg, err.Error())
 			}
 		}
 
