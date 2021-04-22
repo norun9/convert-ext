@@ -44,6 +44,7 @@ func NewImageCvtGlue(
 	}
 }
 
+// Exec:
 func (c *ImageCvtGlue) Exec() (err error) {
 	var srcPaths []string
 	if srcPaths, err = c.pathWalk(); err != nil {
@@ -55,6 +56,7 @@ func (c *ImageCvtGlue) Exec() (err error) {
 	return nil
 }
 
+// convert:
 func (c *ImageCvtGlue) convert(srcPaths []string) (err error) {
 	for _, srcPath := range srcPaths {
 		var file *os.File
@@ -72,8 +74,8 @@ func (c *ImageCvtGlue) convert(srcPaths []string) (err error) {
 		}
 		// ファイルの作成
 		var dst *os.File
-		if dst, err = os.Create(dstPath); err != nil {
-			return errors.Wrap(errof.ErrCreateDstFile, err.Error())
+		if dst, err = createFile(dstPath); err != nil {
+			return err
 		}
 		//　作成したファイルにデコードしたイメージをエンコード
 		if err = encodeImage(dstPath, dst, img); err != nil {
@@ -95,6 +97,7 @@ func (c *ImageCvtGlue) convert(srcPaths []string) (err error) {
 	return nil
 }
 
+// pathWalk:
 func (c *ImageCvtGlue) pathWalk() (srcPaths []string, err error) {
 	rootDir := getRootDir()
 	if err = filepath.Walk(filepath.Join(rootDir, c.InputDir), func(srcPath string, info os.FileInfo, err error) error {
@@ -117,19 +120,29 @@ func (c *ImageCvtGlue) pathWalk() (srcPaths []string, err error) {
 	return srcPaths, nil
 }
 
+// getDstPath:
 func (c *ImageCvtGlue) getDstPath(path string) (dstPath string, err error) {
 	fileNameWithoutExt := filepath.Base(path[:len(path)-len(filepath.Ext(path))])
 	if c.BeforeExt == "" {
 		fileDir := filepath.Dir(path)
 		return fmt.Sprintf("%s%s", filepath.Join(fileDir, fileNameWithoutExt), c.AfterExt), nil
 	}
+	// 画像の出力先が指定されている場合は指定されたディレクトリを作成
 	fileDir := filepath.Join(getRootDir(), c.OutputDir)
-	if err = createDir(fileDir); err != nil {
+	// 指定したディレクトリが既に存在していれば新規でディレクトリを作成しない
+	var isDir bool
+	if isDir, err = isDirExist(fileDir); err != nil {
 		return "", err
+	}
+	if !isDir {
+		if err = createDir(fileDir); err != nil {
+			return "", err
+		}
 	}
 	return fmt.Sprintf("%s%s", filepath.Join(fileDir, fileNameWithoutExt), c.AfterExt), nil
 }
 
+// encodeImage:
 func encodeImage(dstPath string, dst *os.File, img image.Image) (err error) {
 	switch filepath.Ext(dstPath) {
 	case ".png":
@@ -148,6 +161,7 @@ func encodeImage(dstPath string, dst *os.File, img image.Image) (err error) {
 	return nil
 }
 
+// removeSrc:
 func removeSrc(srcPath string) (err error) {
 	if err = os.Remove(srcPath); err != nil {
 		return errors.Wrap(errof.ErrEncodeGIFImg, err.Error())
@@ -155,13 +169,23 @@ func removeSrc(srcPath string) (err error) {
 	return nil
 }
 
+func createFile(dstPath string) (dst *os.File, err error) {
+	if dst, err = os.Create(dstPath); err != nil {
+		return dst, errors.Wrap(errof.ErrCreateDstFile, err.Error())
+	}
+	return dst, nil
+}
+
+// createDir:
 func createDir(dirPath string) (err error) {
+	// 既にディレクトリが存在しているかを確認する
 	if err := os.MkdirAll(dirPath, 0777); err != nil {
 		return errors.Wrap(errof.ErrCreateDirectory, err.Error())
 	}
 	return nil
 }
 
+// getRootDir:
 func getRootDir() string {
 	_, b, _, _ := runtime.Caller(0)
 	cvtDir := filepath.Dir(b)
@@ -169,6 +193,7 @@ func getRootDir() string {
 	return filepath.Dir(internalDir)
 }
 
+// isFileExist:
 func isFileExist(filepath string) (isFile bool, err error) {
 	var fileInfo os.FileInfo
 	if fileInfo, err = os.Stat(filepath); err != nil {
@@ -181,4 +206,19 @@ func isFileExist(filepath string) (isFile bool, err error) {
 		return true, nil
 	}
 	return false, nil
+}
+
+// isDirExist:
+func isDirExist(dir string) (isDir bool, err error) {
+	var fileInfo os.FileInfo
+	if fileInfo, err = os.Stat(dir); err != nil {
+		if os.IsNotExist(err) {
+			return false, nil
+		}
+		return false, errors.Wrap(errof.ErrGetDirInfo, err.Error())
+	}
+	if !fileInfo.IsDir() {
+		return false, nil
+	}
+	return true, nil
 }
