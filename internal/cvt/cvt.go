@@ -83,7 +83,7 @@ func (c *ImageCvtGlue) convert(srcPaths []string) (err error) {
 		}
 		// 変換前のファイルを削除
 		if c.RemoveSrc {
-			if err = removeSrc(srcPath); err != nil {
+			if err = removeFile(srcPath); err != nil {
 				return err
 			}
 		}
@@ -155,14 +155,15 @@ func encodeImage(dstPath string, dst *os.File, img image.Image) (err error) {
 	return nil
 }
 
-// removeSrc:
-func removeSrc(srcPath string) (err error) {
+// removeFile:
+func removeFile(srcPath string) (err error) {
 	if err = os.Remove(srcPath); err != nil {
-		return errors.Wrap(errof.ErrEncodeGIFImg, err.Error())
+		return errors.Wrap(errof.ErrRemoveSrcFile, err.Error())
 	}
 	return nil
 }
 
+// createFile:
 func createFile(dstPath string) (dst *os.File, err error) {
 	if dst, err = os.Create(dstPath); err != nil {
 		return dst, errors.Wrap(errof.ErrCreateDstFile, err.Error())
@@ -172,7 +173,6 @@ func createFile(dstPath string) (dst *os.File, err error) {
 
 // createDir:
 func createDir(dirPath string) (err error) {
-	// 既にディレクトリが存在しているかを確認する
 	if err := os.MkdirAll(dirPath, 0777); err != nil {
 		return errors.Wrap(errof.ErrCreateDirectory, err.Error())
 	}
