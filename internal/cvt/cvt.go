@@ -60,7 +60,10 @@ func (c *ImageCvtGlue) convert(srcPaths []string) (err error) {
 		if file, err = os.Open(srcPath); err != nil {
 			return errors.Wrap(errof.ErrOpenSrcFile, err.Error())
 		}
-		img, _, err := image.Decode(file)
+		var img image.Image
+		if img, _, err = image.Decode(file); err != nil {
+			return errors.Wrap(errof.ErrDecodeImage, err.Error())
+		}
 
 		dstPath := c.getDstPath(file.Name())
 
@@ -69,22 +72,10 @@ func (c *ImageCvtGlue) convert(srcPaths []string) (err error) {
 			return errors.Wrap(errof.ErrCreateDstFile, err.Error())
 		}
 
-		switch filepath.Ext(dstPath) {
-		case ".png":
-			if err = png.Encode(dst, img); err != nil {
-				return errors.Wrap(errof.ErrEncodePNGImg, err.Error())
-			}
-		case ".jpg", ".jpeg":
-			if err = jpeg.Encode(dst, img, &jpeg.Options{Quality: jpeg.DefaultQuality}); err != nil {
-				return errors.Wrap(errof.ErrEncodeJPGImg, err.Error())
-			}
-		case ".gif":
-			if err = gif.Encode(dst, img, nil); err != nil {
-				return errors.Wrap(errof.ErrEncodeGIFImg, err.Error())
-			}
+		if err = encodeImage(dstPath, dst, img); err != nil {
+			return err
 		}
 
-		// image.Imageへとデコード
 		if err = file.Close(); err != nil {
 			return errors.Wrap(errof.ErrCloseSrcFile, err.Error())
 		}
@@ -121,6 +112,24 @@ func (c *ImageCvtGlue) getDstPath(path string) string {
 	fileDir := filepath.Dir(path)
 	fileNameWithoutExt := filepath.Base(path[:len(path)-len(filepath.Ext(path))])
 	return fmt.Sprintf("%s%s", filepath.Join(fileDir, fileNameWithoutExt), c.AfterExt)
+}
+
+func encodeImage(dstPath string, dst *os.File, img image.Image) (err error) {
+	switch filepath.Ext(dstPath) {
+	case ".png":
+		if err = png.Encode(dst, img); err != nil {
+			return errors.Wrap(errof.ErrEncodePNGImg, err.Error())
+		}
+	case ".jpg", ".jpeg":
+		if err = jpeg.Encode(dst, img, &jpeg.Options{Quality: jpeg.DefaultQuality}); err != nil {
+			return errors.Wrap(errof.ErrEncodeJPGImg, err.Error())
+		}
+	case ".gif":
+		if err = gif.Encode(dst, img, nil); err != nil {
+			return errors.Wrap(errof.ErrEncodeGIFImg, err.Error())
+		}
+	}
+	return nil
 }
 
 func getRootDir() string {
