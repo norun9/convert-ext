@@ -2,4 +2,4 @@ build:
 	go build main.go
 
 do:
-	./main -i=pkg/testdata -f=.jpg -t=.png
+	./main -i=pkg/testdata -be=.jpg -ae=.png
