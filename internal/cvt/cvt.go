@@ -60,22 +60,25 @@ func (c *ImageCvtGlue) convert(srcPaths []string) (err error) {
 		if file, err = os.Open(srcPath); err != nil {
 			return errors.Wrap(errof.ErrOpenSrcFile, err.Error())
 		}
+		// イメージのデコード
 		var img image.Image
 		if img, _, err = image.Decode(file); err != nil {
 			return errors.Wrap(errof.ErrDecodeImage, err.Error())
 		}
-
 		dstPath := c.getDstPath(file.Name())
-
+		// ファイルの作成
 		var dst *os.File
 		if dst, err = os.Create(dstPath); err != nil {
 			return errors.Wrap(errof.ErrCreateDstFile, err.Error())
 		}
-
+		//　作成したファイルにデコードしたイメージをエンコード
 		if err = encodeImage(dstPath, dst, img); err != nil {
 			return err
 		}
-
+		// ファイルの削除
+		if err = removeSrc(srcPath); err != nil {
+			return err
+		}
 		if err = file.Close(); err != nil {
 			return errors.Wrap(errof.ErrCloseSrcFile, err.Error())
 		}
@@ -128,6 +131,13 @@ func encodeImage(dstPath string, dst *os.File, img image.Image) (err error) {
 		if err = gif.Encode(dst, img, nil); err != nil {
 			return errors.Wrap(errof.ErrEncodeGIFImg, err.Error())
 		}
+	}
+	return nil
+}
+
+func removeSrc(srcPath string) (err error) {
+	if err = os.Remove(srcPath); err != nil {
+		return errors.Wrap(errof.ErrEncodeGIFImg, err.Error())
 	}
 	return nil
 }

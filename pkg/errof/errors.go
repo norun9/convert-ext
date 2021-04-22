@@ -15,6 +15,7 @@ var ErrCodeNames = map[UserErr]string{
 	ErrGetSrcFileInfo: "指定されたファイル情報の取得に失敗しました",
 	ErrOpenSrcFile:    "指定されたファイルの展開に失敗しました",
 	ErrCloseSrcFile:   "指定されたファイルを閉じるのに失敗しました",
+	ErrRemoveSrcFile:  "指定されたファイルの削除に失敗しました",
 	ErrDecodeImage:    "指定されたイメージのデコードに失敗しました",
 	ErrCreateDstFile:  "指定されたファイルの作成に失敗しました",
 	ErrEncodePNGImg:   "pngファイルのエンコードに失敗しました",
@@ -27,6 +28,7 @@ var (
 	ErrGetSrcFileInfo UserErr = "ErrGetSrcFileInfo"
 	ErrOpenSrcFile    UserErr = "ErrOpenFile"
 	ErrCloseSrcFile   UserErr = "ErrCloseSrcFile"
+	ErrRemoveSrcFile  UserErr = "ErrRemoveSrcFile"
 	ErrDecodeImage    UserErr = "ErrDecodeImage"
 	ErrCreateDstFile  UserErr = "ErrCreateDstFile"
 	ErrEncodePNGImg   UserErr = "ErrEncodePNGImg"
