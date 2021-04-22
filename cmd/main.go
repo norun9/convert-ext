@@ -7,18 +7,18 @@ import (
 	"log"
 )
 
-var i, o, f, t string
+var i, o, be, ae string
 
 func init() {
-	flag.StringVar(&i ,"i", "", "input dir")
-	flag.StringVar(&o ,"o", "", "output dir")
-	flag.StringVar(&f, "f", "jpg", "input ext")
-	flag.StringVar(&t, "t", "png", "output ext")
+	flag.StringVar(&i, "i", "", "input dir")
+	flag.StringVar(&o, "o", "", "output dir")
+	flag.StringVar(&be, "be", "jpg", "before ext")
+	flag.StringVar(&ae, "ae", "png", "after ext")
 	flag.Parse()
 }
 
 func main() {
-	c := cvt.NewImageCvtGlue(i, o, f, t)
+	c := cvt.NewImageCvtGlue(i, o, be, ae)
 	if err := c.Exec(); err != nil {
 		log.Fatalf("Failed to execute image convert", fmt.Sprintf("%+v", err))
 	}
