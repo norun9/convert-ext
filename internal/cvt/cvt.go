@@ -68,23 +68,24 @@ func (c *ImageCvtGlue) convert(srcPaths []string) (err error) {
 		if img, _, err = image.Decode(file); err != nil {
 			return errors.Wrap(errof.ErrDecodeImage, err.Error())
 		}
+		// イメージ出力先パス
 		var dstPath string
 		if dstPath, err = c.getDstPath(file.Name()); err != nil {
 			return err
 		}
-		// ファイルの作成
+		// イメージファイルの作成
 		var dst *os.File
-		if dst, err = createFile(dstPath); err != nil {
-			return err
+		if dst, err = os.Create(dstPath); err != nil {
+			return errors.Wrap(errof.ErrCreateDstFile, err.Error())
 		}
-		//　作成したファイルにデコードしたイメージをエンコード
+		//　作成したイメージファイルにデコードしたイメージをエンコード
 		if err = encodeImage(dstPath, dst, img); err != nil {
 			return err
 		}
-		// 変換前のファイルを削除
+		// 変換前のファイルを削除(オプション)
 		if c.RemoveSrc {
-			if err = removeFile(srcPath); err != nil {
-				return err
+			if err = os.Remove(srcPath); err != nil {
+				return errors.Wrap(errof.ErrRemoveSrcFile, err.Error())
 			}
 		}
 		if err = file.Close(); err != nil {
@@ -124,16 +125,22 @@ func (c *ImageCvtGlue) pathWalk() (srcPaths []string, err error) {
 func (c *ImageCvtGlue) getDstPath(path string) (dstPath string, err error) {
 	fileNameWithoutExt := filepath.Base(path[:len(path)-len(filepath.Ext(path))])
 	if c.OutputDir == "" {
-		fileDir := filepath.Dir(path)
-		return fmt.Sprintf("%s%s", filepath.Join(fileDir, fileNameWithoutExt), c.AfterExt), nil
+		dirPath := filepath.Dir(path)
+		return fmt.Sprintf("%s%s", filepath.Join(dirPath, fileNameWithoutExt), c.AfterExt), nil
 	}
-	// 画像の出力先が指定されている場合は指定されたディレクトリを作成
 	rootDir := getRootDir()
-	fileDir := filepath.Join(rootDir, c.OutputDir)
-	if err = createDir(fileDir); err != nil {
+	dirPath := filepath.Join(rootDir, c.OutputDir)
+	var isDir bool
+	if isDir, err = isDirExist(dirPath); err != nil {
 		return "", err
 	}
-	return fmt.Sprintf("%s%s", filepath.Join(fileDir, fileNameWithoutExt), c.AfterExt), nil
+	// 出力先ディレクトリが存在していなければ新規作成
+	if !isDir {
+		if err := os.MkdirAll(dirPath, 0777); err != nil {
+			return "", errors.Wrap(errof.ErrCreateDirectory, err.Error())
+		}
+	}
+	return fmt.Sprintf("%s%s", filepath.Join(dirPath, fileNameWithoutExt), c.AfterExt), nil
 }
 
 // encodeImage:
@@ -151,30 +158,6 @@ func encodeImage(dstPath string, dst *os.File, img image.Image) (err error) {
 		if err = gif.Encode(dst, img, nil); err != nil {
 			return errors.Wrap(errof.ErrEncodeGIFImg, err.Error())
 		}
-	}
-	return nil
-}
-
-// removeFile:
-func removeFile(srcPath string) (err error) {
-	if err = os.Remove(srcPath); err != nil {
-		return errors.Wrap(errof.ErrRemoveSrcFile, err.Error())
-	}
-	return nil
-}
-
-// createFile:
-func createFile(dstPath string) (dst *os.File, err error) {
-	if dst, err = os.Create(dstPath); err != nil {
-		return dst, errors.Wrap(errof.ErrCreateDstFile, err.Error())
-	}
-	return dst, nil
-}
-
-// createDir:
-func createDir(dirPath string) (err error) {
-	if err := os.MkdirAll(dirPath, 0777); err != nil {
-		return errors.Wrap(errof.ErrCreateDirectory, err.Error())
 	}
 	return nil
 }
@@ -200,4 +183,19 @@ func isFileExist(filepath string) (isFile bool, err error) {
 		return false, nil
 	}
 	return true, nil
+}
+
+// isDirExist:
+func isDirExist(filepath string) (isDir bool, err error) {
+	var fileInfo os.FileInfo
+	if fileInfo, err = os.Stat(filepath); err != nil {
+		if os.IsNotExist(err) {
+			return false, nil
+		}
+		return false, errors.Wrap(errof.ErrGetDirInfo, err.Error())
+	}
+	if fileInfo.IsDir() {
+		return true, nil
+	}
+	return false, nil
 }

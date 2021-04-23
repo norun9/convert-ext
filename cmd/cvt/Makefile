@@ -5,4 +5,4 @@ build:
 	go build -o $(PROJECT_ROOT)/bin/$(SERVICE_NAME)
 
 exec:
-	$(PROJECT_ROOT)/bin/$(SERVICE_NAME) -i=pkg/testdata -o=pkg/img -be=jpg -ae=png
+	$(PROJECT_ROOT)/bin/$(SERVICE_NAME) -i=pkg/testdata -o=pkg/png -be=jpg -ae=png
